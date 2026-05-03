@@ -21,7 +21,7 @@ echo "deb https://mirror.wonchan.net/termux/termux-main stable main" > $PREFIX/e
 pkg update -y
 
 # --- 3. 필수 패키지 설치 ---
-pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree curl wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21
+pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree curl wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21 python-psutil
 pkg update -y
 pkg i glibc-runner python3.11 build-essential -y
 
@@ -178,10 +178,7 @@ EOF
 echo "NvChad 플러그인 및 테마 에셋 동기화 중..."
 nvim --headless "+Lazy! sync" +qa
 
-
-
-# --- 9. 서비스 활성화 및 마무리 ---
-sv-enable sshd
+pkg upgrade -y
 
 echo "===================================================="
 echo "      🚀 kowoo-termux 세팅이 모두 끝났습니다!       "
