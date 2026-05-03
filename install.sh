@@ -5,17 +5,25 @@ echo -n "사용할 Termux 비밀번호를 입력하세요: "
 read -s USER_PWD
 echo "" 
 
-# --- 2. 미러 및 시스템 업데이트 ---
-echo "원찬 미러 설정 및 패키지 업데이트 중..."
+# --- 2. 시스템 업데이트 및 미러 서버 설정 ---
+echo "패키지 업데이트 시작..."
 termux-setup-storage
+
+# 1. 일단 기본 미러에서 업데이트/업그레이드 진행 (중간 멈춤 방지)
 pkg update -y
-echo "deb https://mirror.wonchan.net/termux/termux-main stable main" > $PREFIX/etc/apt/sources.list
 pkg upgrade -y -o Dpkg::Options::="--force-confnew"
+
+# 2. 업그레이드가 끝난 후, 원찬 미러로 주소를 강제 교체
+echo "원찬 미러 서버로 교체 중..."
+echo "deb https://mirror.wonchan.net/termux/termux-main stable main" > $PREFIX/etc/apt/sources.list
+
+# 3. 바뀐 주소로 다시 한 번 업데이트 (리스트 갱신)
+pkg update -y
 
 # --- 3. 필수 패키지 설치 ---
 pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree curl wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21
 pkg update -y
-pkg i glibc-runner python3.11 build-essential python-dev -y
+pkg i glibc-runner python3.11 build-essential -y
 
 # --- 4. 파이썬 도구 설치 ---
 pip install yt-dlp trash-cli
