@@ -10,12 +10,12 @@ echo "원찬 미러 설정 및 패키지 업데이트 중..."
 termux-setup-storage
 pkg update -y
 echo "deb https://mirror.wonchan.net/termux/termux-main stable main" > $PREFIX/etc/apt/sources.list
-pkg upgrade -y
+pkg upgrade -y -o Dpkg::Options::="--force-confnew"
 
 # --- 3. 필수 패키지 설치 ---
-pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree curl wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq
+pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree curl wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21
 pkg update -y
-pkg i glibc-runner python3.11 -y
+pkg i glibc-runner python3.11 build-essential python-dev -y
 
 # --- 4. 파이썬 도구 설치 ---
 pip install yt-dlp trash-cli
@@ -58,6 +58,12 @@ color15: #e6e6e6
 EOF
 
 curl -L "https://github.com/1COWOO/termux-config/raw/refs/heads/main/font.ttf" -o ~/.termux/font.ttf
+# --- 7-2. Termux 특수키(Extra Keys) 설정 ---
+echo "특수키 바 설정 중..."
+mkdir -p ~/.termux
+cat <<EOF > ~/.termux/termux.properties
+extra-keys = [['ESC','/','-','HOME','UP','END','PGUP'],['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]
+EOF
 termux-reload-settings
 
 
@@ -145,17 +151,26 @@ set -ga terminal-overrides ",xterm:Tc"
 set-window-option -g mode-keys vi
 EOF
 
-# --- 8-3. NvChad Starter (Neovim 최적화) 설치 ---
-echo "NvChad Starter 설치 중..."
-rm -rf ~/.config/nvim
-rm -rf ~/.local/share/nvim
-rm -rf ~/.cache/nvim
-
+# --- 8-3. NvChad Starter 설치 및 커스텀 설정 ---
+echo "NvChad Starter 설치 및 테마 설정 중..."
+rm -rf ~/.config/nvim ~/.local/share/nvim ~/.cache/nvim
 git clone https://github.com/NvChad/starter ~/.config/nvim --depth 1
 
-# 플러그인 동기화 (nvim을 켜서 자동으로 설치하도록 유도)
-echo "NvChad 초기화 중... 잠시만 기다려 주세요."
+# [중요] 테마 설정을 '먼저' 생성합니다
+mkdir -p ~/.config/nvim/lua
+cat <<'EOF' > ~/.config/nvim/lua/chadrc.lua
+---@type ChadrcConfig
+local M = {}
+M.base46 = { theme = "chadracula" }
+M.ui = { theme_toggle = { "chadracula", "one_light" } }
+return M
+EOF
+
+# 그 다음 플러그인 동기화를 진행합니다
+echo "NvChad 플러그인 및 테마 에셋 동기화 중..."
 nvim --headless "+Lazy! sync" +qa
+
+
 
 # --- 9. 서비스 활성화 및 마무리 ---
 sv-enable sshd
@@ -167,4 +182,3 @@ echo " 1. Termux를 완전히 종료(Exit) 후 다시 여세요.      "
 echo " 2. SSH 접속 포트는 8022 입니다.                    "
 echo " 3. 멋진 Dracula 테마와 NvChad를 즐기세요!          "
 echo "===================================================="
-
