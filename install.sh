@@ -5,7 +5,11 @@ echo -n "사용할 Termux 비밀번호를 입력하세요: "
 read -s USER_PWD
 echo "" 
 
-# --- 2. 미러 최적화 및 시스템 업데이트 ---
+# --- 2. [의존성 해결] 시스템 라이브러리 강제 업데이트 ---
+# curl 실행 시 라이브러리 심볼 에러를 방지하기 위해 최우선적으로 실행합니다.
+echo "라이브러리 의존성 복구 및 업데이트 시작..."
+apt update && apt full-upgrade -y -o Dpkg::Options::="--force-confnew"
+
 echo "패키지 매니저 준비 중..."
 pkg update -y
 pkg install -y dialog # 미러 선택기 실행을 위한 필수 패키지
@@ -113,7 +117,7 @@ alias la='ls -a'
 alias l='ls --classify'
 alias lt='ls --tree'
 alias vi='nvim'
-alias kw-mirror='fastest-repo' # 언제든 다시 속도 측정을 할 수 있도록 단축어 추가
+alias kw-mirror='fastest-repo'
 
 # thefuck & zoxide 초기화
 eval $(TF_SHELL=zsh thefuck --alias)
