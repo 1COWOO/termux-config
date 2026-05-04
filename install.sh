@@ -8,7 +8,7 @@ echo ""
 # --- 2. 미러 최적화 및 시스템 업데이트 ---
 echo "패키지 매니저 준비 중..."
 pkg update -y
-pkg install -y curl dialog # 미러 선택기 실행을 위한 필수 패키지
+pkg install -y dialog # 미러 선택기 실행을 위한 필수 패키지
 
 # [추가] 1COWOO님의 리포지토리에서 미러 선택 도구 다운로드 및 실행
 echo "가장 빠른 미러 서버를 찾는 중..."
