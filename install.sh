@@ -5,23 +5,26 @@ echo -n "사용할 Termux 비밀번호를 입력하세요: "
 read -s USER_PWD
 echo "" 
 
-# --- 2. 시스템 업데이트 및 미러 서버 설정 ---
-echo "패키지 업데이트 시작..."
-termux-setup-storage
-
-# 1. 일단 기본 미러에서 업데이트/업그레이드 진행 (중간 멈춤 방지)
+# --- 2. 미러 최적화 및 시스템 업데이트 ---
+echo "패키지 매니저 준비 중..."
 pkg update -y
+pkg install -y curl dialog # 미러 선택기 실행을 위한 필수 패키지
+
+# [추가] 1COWOO님의 리포지토리에서 미러 선택 도구 다운로드 및 실행
+echo "가장 빠른 미러 서버를 찾는 중..."
+curl -L "https://raw.githubusercontent.com/1COWOO/termux-config/main/termux-fastest-repo" -o $PREFIX/bin/termux-fastest-repo
+chmod +x $PREFIX/bin/termux-fastest-repo
+
+# 미러 선택기 실행 (사용자가 여기서 서버를 직접 선택합니다)
+termux-fastest-repo
+
+# 선택된 미러를 기반으로 전체 업그레이드 진행
+echo "시스템 업그레이드 중..."
 pkg upgrade -y -o Dpkg::Options::="--force-confnew"
 
-# 2. 업그레이드가 끝난 후, 원찬 미러로 주소를 강제 교체
-echo "원찬 미러 서버로 교체 중..."
-echo "deb https://mirror.wonchan.net/termux/termux-main stable main" > $PREFIX/etc/apt/sources.list
-
-# 3. 바뀐 주소로 다시 한 번 업데이트 (리스트 갱신)
-pkg update -y
-
 # --- 3. 필수 패키지 설치 ---
-pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree curl wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21 python-psutil
+echo "필수 패키지 설치 중..."
+pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21 python-psutil
 pkg update -y
 pkg i glibc-runner python3.11 build-essential -y
 
@@ -66,9 +69,9 @@ color15: #e6e6e6
 EOF
 
 curl -L "https://github.com/1COWOO/termux-config/raw/refs/heads/main/font.ttf" -o ~/.termux/font.ttf
-# --- 7-2. Termux 특수키(Extra Keys) 설정 ---
+
+# --- 7-2. Termux 특수키 설정 ---
 echo "특수키 바 설정 중..."
-mkdir -p ~/.termux
 cat <<EOF > ~/.termux/termux.properties
 extra-keys = [['ESC','/','-','HOME','UP','END','PGUP'],['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]
 EOF
@@ -110,6 +113,7 @@ alias la='ls -a'
 alias l='ls --classify'
 alias lt='ls --tree'
 alias vi='nvim'
+alias kw-mirror='fastest-repo' # 언제든 다시 속도 측정을 할 수 있도록 단축어 추가
 
 # thefuck & zoxide 초기화
 eval $(TF_SHELL=zsh thefuck --alias)
@@ -123,48 +127,32 @@ alias trash-rm='TRASH_VOLUMES=$PWD trash-rm'
 alias trash-restore='trash-restore --trash-dir=$HOME/.local/share/Trash'
 
 # --- LS_COLORS 설정 ---
-LS_COLORS="${LS_COLORS}:*.jar=32:*.dis=31:*.gz=38;5;208:*.xz=38;5;208:*.zip=38;5;208:di=38;5;220"
-LS_COLORS="${LS_COLORS}:fi=38;5;208:ln=38;5;208:ex=38;5;208:or=38;5;208:mi=38;5;208:so=38;5;208:pi=38;5;208:bd=38;5;208:cd=38;5;208"
-LS_COLORS="${LS_COLORS}:su=38;5;208:sg=38;5;208:tw=38;5;208:ow=38;5;208:st=38;5;208:ca=38;5;208"
-export LS_COLORS
+export LS_COLORS="${LS_COLORS}:*.jar=32:*.dis=31:*.gz=38;5;208:*.xz=38;5;208:*.zip=38;5;208:di=38;5;220:fi=38;5;208:ln=38;5;208:ex=38;5;208:or=38;5;208:mi=38;5;208:so=38;5;208:pi=38;5;208:bd=38;5;208:cd=38;5;208:su=38;5;208:sg=38;5;208:tw=38;5;208:ow=38;5;208:st=38;5;208:ca=38;5;208"
 EOF
 
 # --- 8-2. .tmux.conf 설정 파일 생성 ---
-echo ".tmux.conf 설정 중..."
 cat <<EOF > ~/.tmux.conf
-# prefix 설정
 unbind C-b
 set-option -g prefix C-a
 bind-key C-a send-prefix
-
-# 창 분할 단축키 (| 와 -)
 bind | split-window -h
 bind - split-window -v
 unbind '"'
 unbind %
-
-# Alt + 방향키로 창 이동 (Prefix 없이)
 bind -n M-Left select-pane -L
 bind -n M-Right select-pane -R
 bind -n M-Up select-pane -U
 bind -n M-Down select-pane -D
-
-# 마우스 사용 활성화
 set -g mouse on
-
-# 터미널 색상 최적화 (True Color 지원)
 set -ga terminal-overrides ",xterm:Tc"
-
-# vi 모드 키 바인딩
 set-window-option -g mode-keys vi
 EOF
 
 # --- 8-3. NvChad Starter 설치 및 커스텀 설정 ---
-echo "NvChad Starter 설치 및 테마 설정 중..."
+echo "NvChad Starter 설치 중..."
 rm -rf ~/.config/nvim ~/.local/share/nvim ~/.cache/nvim
 git clone https://github.com/NvChad/starter ~/.config/nvim --depth 1
 
-# [중요] 테마 설정을 '먼저' 생성합니다
 mkdir -p ~/.config/nvim/lua
 cat <<'EOF' > ~/.config/nvim/lua/chadrc.lua
 ---@type ChadrcConfig
@@ -174,16 +162,16 @@ M.ui = { theme_toggle = { "chadracula", "one_light" } }
 return M
 EOF
 
-# 그 다음 플러그인 동기화를 진행합니다
-echo "NvChad 플러그인 및 테마 에셋 동기화 중..."
+echo "NvChad 플러그인 동기화 중..."
 nvim --headless "+Lazy! sync" +qa
 
+# --- 9. 마무리 ---
 pkg upgrade -y
 
 echo "===================================================="
 echo "      🚀 kowoo-termux 세팅이 모두 끝났습니다!       "
 echo "===================================================="
 echo " 1. Termux를 완전히 종료(Exit) 후 다시 여세요.      "
-echo " 2. SSH 접속 포트는 8022 입니다.                    "
-echo " 3. 멋진 Dracula 테마와 NvChad를 즐기세요!          "
+echo " 2. SSH 접속은 'sshd' 입력 후 8022 포트로 하세요.    "
+echo " 3. 미러 변경이 필요하면 'termux-fastest-repo'를 입력하세요.   "
 echo "===================================================="
