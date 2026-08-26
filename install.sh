@@ -28,12 +28,12 @@ pkg upgrade -y -o Dpkg::Options::="--force-confnew"
 
 # --- 3. 필수 패키지 설치 ---
 echo "필수 패키지 설치 중..."
-pkg install -y git neovim termux-api ffmpeg zip openssh eza nodejs-lts tur-repo glibc-repo tree wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq openjdk-21 python-psutil
+pkg install -y git neovim termux-api zip openssh eza nodejs-lts tur-repo glibc-repo tree wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq python-psutil
 pkg update -y
 pkg i glibc-runner python3.11 build-essential -y
 
 # --- 4. 파이썬 도구 설치 ---
-pip install yt-dlp trash-cli
+pip install trash-cli
 pip3.11 install thefuck
 tldr --update
 
@@ -136,6 +136,7 @@ EOF
 
 # --- 8-2. .tmux.conf 설정 파일 생성 ---
 cat <<EOF > ~/.tmux.conf
+set -g default-terminal "tmux-256color"
 unbind C-b
 set-option -g prefix C-a
 bind-key C-a send-prefix
@@ -148,8 +149,9 @@ bind -n M-Right select-pane -R
 bind -n M-Up select-pane -U
 bind -n M-Down select-pane -D
 set -g mouse on
-set -ga terminal-overrides ",xterm:Tc"
+set -as terminal-features ",tmux-256color:RGB"
 set-window-option -g mode-keys vi
+
 EOF
 
 # --- 8-3. NvChad Starter 설치 및 커스텀 설정 ---
