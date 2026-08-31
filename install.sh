@@ -28,7 +28,7 @@ pkg upgrade -y -o Dpkg::Options::="--force-confnew"
 
 # --- 3. 필수 패키지 설치 ---
 echo "필수 패키지 설치 중..."
-pkg install -y git neovim termux-api zip openssh eza nodejs-lts tur-repo glibc-repo tree wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq python-psutil
+pkg install -y git neovim termux-api zip openssh eza tur-repo glibc-repo tree wget termux-services bat tmux htop zoxide yazi dust duf net-tools tar procs python tealdeer zsh jq python-psutil
 pkg update -y
 pkg i glibc-runner python3.11 build-essential -y
 
