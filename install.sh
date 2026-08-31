@@ -117,7 +117,6 @@ alias la='ls -a'
 alias l='ls --classify'
 alias lt='ls --tree'
 alias vi='nvim'
-alias kw-mirror='fastest-repo'
 
 # thefuck & zoxide 초기화
 eval $(TF_SHELL=zsh thefuck --alias)
