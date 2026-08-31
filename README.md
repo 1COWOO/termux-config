@@ -5,4 +5,4 @@
 아래 명령어를 복사해서 Termux에 붙여넣으세요:
 
 ```bash
-curl -LO https://raw.githubusercontent.com/1COWOO/termux-config/main/install.sh && chmod +x install.sh && ./install.sh
+curl -fsSL https://raw.githubusercontent.com/1COWOO/termux-config/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
